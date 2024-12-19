@@ -1,5 +1,9 @@
 # Nornir-RootKit
 
+![Illustration by Sumi Kiriko](https://s2.loli.net/2024/12/20/7xqrIvERNb9Tstn.png)
+
+> Illustration by [@SumiKiriko](https://github.com/SumiKiriko), still working in progress...
+
 Yet another modern Linux kernel rootkit for educational purposes.
 
 ## Getting started
@@ -69,7 +73,8 @@ You can refer to the configuration menu (e.g., `menuconfig`) to see all strategi
 
 ## Author
 
-- arttnba3 <arttnba@gmail.com>
+- Code: arttnba3 <arttnba@gmail.com>
+- Illustration: 墨 桐子 <kirikosumi@gmail.com>
 
 ## License
 
