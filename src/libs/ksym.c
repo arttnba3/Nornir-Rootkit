@@ -26,7 +26,9 @@ common_blank_seperator_nr = sizeof(common_blank_seperators) / sizeof(char);
 static __always_inline
 int is_seperator(const char ch,const char *seperators,const size_t seperator_nr)
 {
-    for (size_t i = 0; i < seperator_nr; i++) {
+    size_t i;
+
+    for (i = 0; i < seperator_nr; i++) {
         if (ch == seperators[i]) {
             return 1;
         }
@@ -83,6 +85,7 @@ static __always_inline int get_next_kallsyms_info(char *ksym_buf,
         KUNKNOWN,
     } status;
     int ret = 0;
+    size_t i;
 
     buf = kmalloc(ksym_buf_len, GFP_KERNEL);
     if (!buf) {
@@ -98,7 +101,7 @@ static __always_inline int get_next_kallsyms_info(char *ksym_buf,
         switch (status) {
         case KADDR:
             if (unlikely(len != 16)) {
-                for (size_t i = 0; i < len; i++) {
+                for (i = 0; i < len; i++) {
                     if ((buf[i] < '0' || buf[i] > '9')
                         && (buf[i] < 'a' || buf[i] > 'f')) {
                         printk(KERN_ERR
@@ -110,7 +113,7 @@ static __always_inline int get_next_kallsyms_info(char *ksym_buf,
             }
 
             res->addr = 0;
-            for (int i = 0; i < len; i++) {
+            for (i = 0; i < len; i++) {
                 res->addr <<= 4;
                 if (buf[i] >= '0' && buf[i] <= '9') {
                     res->addr |= buf[i] - '0';
@@ -174,6 +177,8 @@ static ssize_t nornir_find_ksym_info(struct file *ksym_fp,
     static const char line_seperator[] = { '\n' };
     int parse_ret;
     char __user *ubuf;
+    const char **mod;
+    const char *ptyp;
 
     if (!ksym_fp || !res) {
         ret = -EFAULT;
@@ -256,7 +261,7 @@ static ssize_t nornir_find_ksym_info(struct file *ksym_fp,
             if (!strcmp(res->name, target_name)) {
                 /* we may have some symbols in other modules we don't want */
                 if (strlen(res->module) != 0 && ignore_mods) {
-                    for (const char **mod = ignore_mods; *mod; mod++) {
+                    for (mod = ignore_mods; *mod; mod++) {
                         if (!strcmp(*mod, res->module)) {
                             goto token_again;
                         }
@@ -264,7 +269,7 @@ static ssize_t nornir_find_ksym_info(struct file *ksym_fp,
                 }
 
                 if (ignore_types) {
-                    for (const char *ptyp = ignore_types; *ptyp; ptyp++) {
+                    for (ptyp = ignore_types; *ptyp; ptyp++) {
                         if (res->type == *ptyp) {
                             goto token_again;
                         }
