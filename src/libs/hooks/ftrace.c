@@ -7,6 +7,7 @@
 #include <linux/kernel.h>
 #include <linux/ftrace.h>
 #include <linux/slab.h>
+#include <linux/version.h>
 #include "common/logger.h"
 #include "libs/hooks.h"
 
@@ -25,7 +26,13 @@ nornir_install_ftrace_hook_internal(void *target, ftrace_func_t new_dst)
     memset(hook_ops, 0, sizeof(*hook_ops));
     hook_ops->func = new_dst;
     hook_ops->flags = FTRACE_OPS_FL_SAVE_REGS
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0)
                     | FTRACE_OPS_FL_RECURSION
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 7, 0)
+                    | FTRACE_OPS_FL_RECURSION_SAFE
+#else
+    #error "Kernel version too old, not supported yet."
+#endif
                     | FTRACE_OPS_FL_IPMODIFY;
 
     err = ftrace_set_filter_ip(hook_ops, (unsigned long) target, 0, 0);
