@@ -8,6 +8,20 @@ Yet another modern Linux kernel rootkit for educational purposes.
 
 ## Getting started
 
+### O. Verified Platforms
+
+We have tested compiling the `Nornir-Rootkit` on following distros. If your computer do not use anyone of them, it's possible that the program can be run successfully, or some problems may occur too.
+
+![](https://img.shields.io/badge/Gentoo_Linux-54487A?style=for-the-badge&logo=Gentoo&logoColor=white)
+
+![](https://img.shields.io/badge/openSUSE_Tumbleweed-%2364B345?style=for-the-badge&logo=openSUSE&logoColor=white) ![](https://img.shields.io/badge/openSUSE_Slowroll-%2364B345?style=for-the-badge&logo=openSUSE&logoColor=white)
+
+![](https://img.shields.io/badge/Debian_Bookworm-CE0056?style=for-the-badge&logo=debian&logoColor=white)
+
+![](https://img.shields.io/badge/Ubuntu_24.04-DD4814?style=for-the-badge&logo=ubuntu&logoColor=white)
+
+Note that currently you may need to install some packages manually before compiling this project (e.g., package that provides kernel headers like `linux-headers-amd64`). Scripts for checking missing packages for different distros are coming soooooon in the future...
+
 ### I. Configure the project
 
 Firstly we need to configure features we'd like to enable in the `Nornir-RootKit`, a graphic configuration menu can be run simply by:
