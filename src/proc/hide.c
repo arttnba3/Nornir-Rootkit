@@ -10,6 +10,7 @@
 #include <linux/idr.h>
 #include <linux/pid_namespace.h>
 #include <linux/version.h>
+#include "proc/hide.h"
 
 void nornir_hide_process_pid(struct task_struct *task, struct pid *pid)
 {
