@@ -6,8 +6,11 @@
 export KCONF_BIN_PATH=$(which kconfig-conf 2>/dev/null)
 export KMCONF_BIN_PATH=$(which kconfig-mconf 2>/dev/null)
 
+export NORNIR_SCRIPTS_DIR=$(pwd)/scripts
 export NORNIR_SRC_DIR=$(pwd)/src
 export NORNIR_KCONFIG_PATH=$NORNIR_SRC_DIR/Kconfig
+
+export PREREQUISITE_CHECKER=check_prerequisite.sh
 
 function err_report() 
 {
@@ -17,73 +20,9 @@ function err_report()
 function check_src()
 {
     if [[ ! -f $NORNIR_KCONFIG_PATH ]]; then
-        echo "[x] Please use this script under the root directory of the project, and make sure the src/Kconfig was not lost."
+        echo '[x] Please specific the correct path of the project, and make sure the `src/Kconfig` was not lost.'
         exit 1
     fi
-}
-
-declare -a needed_pkgs_apt=("gcc" "make" "flex" "bison" "binutils" "autoconf" "automake" "autotools-dev" "dh-autoreconf" "gperf" "libtool" "pkg-config" "libncurses-dev")
-declare -a missing_pkgs_apt=()
-
-function check_toolchain_apt_find_missing_pkgs()
-{
-    for pkg in "${needed_pkgs_apt[@]}"; do
-        dpkg-query -l "$pkg" &>/dev/null
-        pkg_query_res=$?
-        if [[ ! -z $pkg_query_res ]]; then
-            missing_pkgs_apt+=("$pkg")
-        fi
-    done
-}
-
-function check_toolchain_apt()
-{
-    trap 'err_report $LINENO; exit 1;' ERR
-
-    check_toolchain_apt_find_missing_pkgs
-
-    if [ ${#missing_pkgs_apt[@]} -ne 0 ]; then
-        echo "[*] Some toolchains are missing, trying to install..."
-        sudo apt-get update
-        for pkg in "${missing_pkgs_apt[@]}"; do
-            sudo apt-get install -y "$pkg"
-        done
-    fi
-}
-
-function check_toolchain()
-{
-    echo "[*] Checking for necessary toolchains..."
-
-    distro=$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | sed -e 's/"//g')
-
-    case $distro in
-        "ubuntu"|"debian")
-            check_toolchain_apt
-            ;;
-        *)
-            echo "[!] Distro \"${distro}\" is not officially supportted."
-            echo "[*] Trying to search known package managers for the checking."
-
-            if command -v apt-get; then
-                check_toolchain_apt
-            else
-                echo "[x] No known package managers were found."
-                read -p "Do you wish to continue directly? [Y/n]" choice
-                case $choice in 
-                    Y|y|"")
-                        ;;
-                    N|n)
-                        echo "See you next time..."
-                        exit 0
-                        ;;
-                    *)
-                        echo "[x] Invalid choice"
-                        exit 1
-                        ;;
-                    esac
-            fi
-    esac
 }
 
 function install_kconfig_pkg_apt()
@@ -213,7 +152,7 @@ function get_kconfig_pkg_distro()
                         echo "[x] Invalid choice"
                         exit 1
                         ;;
-                    esac
+                esac
             fi
     esac
 }
@@ -288,7 +227,7 @@ function setup_config()
 function main()
 {
     check_src
-    check_toolchain
+    $NORNIR_SCRIPTS_DIR/$PREREQUISITE_CHECKER || exit 1
     check_kconfig
     setup_config $@
 }

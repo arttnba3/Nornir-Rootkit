@@ -20,8 +20,10 @@ menuconfig:
 .config:
 	@$(MAKE) config
 
-install: all
-	@$(insmod) $(NORNIR_SRC_DIR)/nornir.ko
+$(NORNIR_SRC_DIR)/nornir.ko: all
+
+install: $(NORNIR_SRC_DIR)/nornir.ko
+	@sudo insmod $(NORNIR_SRC_DIR)/nornir.ko
 
 clean:
 	@$(MAKE) -C $(LINUX_KERNEL_SRC) M=$(NORNIR_SRC_DIR) clean
