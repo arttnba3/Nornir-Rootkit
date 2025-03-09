@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0
+
+$(MODULE_NAME)-$(CONFIG_NORNIR_PROCFS_UAPI)    += uapi/procfs_ui.o
+ccflags-$(CONFIG_NORNIR_PROCFS_UAPI)           += -DCONFIG_NORNIR_PROCFS_UAPI

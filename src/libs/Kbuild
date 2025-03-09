@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0
+
+$(MODULE_NAME)-y                                += libs/hooks/base.o
+$(MODULE_NAME)-y                                += libs/hooks/dymasm.o
+$(MODULE_NAME)-y                                += libs/hooks/ftrace.o
+$(MODULE_NAME)-y                                += libs/ksym.o
+$(MODULE_NAME)-y                                += libs/mem.o
+ccflags-$(CONFIG_NORNIR_VMAP_TAMPER_ROMEM)      += -DCONFIG_NORNIR_VMAP_TAMPER_ROMEM
+ccflags-$(CONFIG_NORNIR_IOREMAP_TAMPER_ROMEM)   += -DCONFIG_NORNIR_IOREMAP_TAMPER_ROMEM
+ccflags-$(CONFIG_NORNIR_CR0_TAMPER_ROMEM)       += -DCONFIG_NORNIR_CR0_TAMPER_ROMEM
+ccflags-$(CONFIG_NORNIR_PGTBL_TAMPER_ROMEM)     += -DCONFIG_NORNIR_PGTBL_TAMPER_ROMEM

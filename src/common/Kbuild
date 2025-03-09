@@ -1,0 +1,3 @@
+# SPDX-License-Identifier: GPL-2.0
+
+$(MODULE_NAME)-y += common/logger.o

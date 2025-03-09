@@ -8,4 +8,6 @@
 Module.symvers
 modules.order
 .config
+.config.old
+.gdb_history
 temp/
