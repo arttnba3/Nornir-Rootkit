@@ -136,6 +136,63 @@ function check_toolchain_zypper()
     fi
 }
 
+declare -a needed_pkgs_emerge=("dev-vcs/git" "sys-devel/gcc" "dev-build/make" "sys-devel/flex" "sys-devel/bison" "sys-devel/binutils" "dev-build/autoconf" "dev-build/automake" "dev-util/gperf" "dev-build/libtool" "dev-util/pkgconf" "sys-libs/ncurses" "sys-kernel/gentoo-sources")
+declare -a missing_pkgs_emerge=()
+
+function check_toolchain_emerge_find_missing_pkgs()
+{
+    for pkg in "${needed_pkgs_emerge[@]}"; do
+        qlist -I "$pkg" &>/dev/null
+        pkg_query_res=$?
+        if [[ $pkg_query_res -ne 0 ]]; then
+            missing_pkgs_emerge+=("$pkg")
+        fi
+    done
+
+    for pkg in "${missing_pkgs_emerge[@]}"; do
+        echo "package missing: $pkg"
+    done
+}
+
+function install_toolchain_emerge_missing_pkgs()
+{
+    trap 'err_report $LINENO; exit 1;' ERR
+
+    sudo emerge --sync
+
+    for pkg in "${missing_pkgs_emerge[@]}"; do
+        if ! sudo emerge --ask --verbose --yes "$pkg"; then
+            echo "[x] Unable to install package \"$pkg\""
+            exit 1
+        fi
+    done
+}
+
+function check_toolchain_emerge()
+{
+    trap 'err_report $LINENO; exit 1;' ERR
+
+    check_toolchain_emerge_find_missing_pkgs
+
+    if [ ${#missing_pkgs_emerge[@]} -ne 0 ]; then
+        echo "[!] Some toolchains are missing."
+        read -p "Do you wish to install them now? [Y/n]" choice
+        case $choice in 
+            Y|y|"")
+                ;;
+            N|n)
+                echo "See you next time..."
+                exit 1
+                ;;
+            *)
+                echo "[x] Invalid choice"
+                exit 1
+                ;;
+        esac
+        install_toolchain_emerge_missing_pkgs $@
+    fi
+}
+
 function check_toolchain()
 {
     echo "[*] Checking for necessary toolchains..."
@@ -143,11 +200,14 @@ function check_toolchain()
     distro=$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | sed -e 's/"//g')
 
     case $distro in
-        "ubuntu"|"debian")
-            check_toolchain_apt
+        "gentoo")
+            check_toolchain_emerge
             ;;
         "opensuse-tumbleweed"|"opensuse-slowroll"|"opensuse-leap")
             check_toolchain_zypper $distro
+            ;;
+        "ubuntu"|"debian")
+            check_toolchain_apt
             ;;
         *)
             echo "[!] Distro \"${distro}\" is not officially supportted."

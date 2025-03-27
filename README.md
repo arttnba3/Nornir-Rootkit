@@ -1,10 +1,20 @@
+<div align="center">
+
+<a href="https://s2.loli.net/2024/12/20/7xqrIvERNb9Tstn.png" target="_blank"><img src="https://s2.loli.net/2024/12/20/7xqrIvERNb9Tstn.png"></a>
+
 # Nornir-RootKit
 
-![Illustration by Sumi Kiriko](https://s2.loli.net/2024/12/20/7xqrIvERNb9Tstn.png)
+Yet another modern Linux kernel rootkit for educational purposes.
+
+<p align="center">
+
+<img src="https://img.shields.io/github/license/arttnba3/Nornir-Rootkit?style=for-the-badge" alt="license">
+
+</p>
+
+</div>
 
 > Illustration by [@SumiKiriko](https://github.com/SumiKiriko), still working in progress...
-
-Yet another modern Linux kernel rootkit for educational purposes.
 
 ## Getting started
 
